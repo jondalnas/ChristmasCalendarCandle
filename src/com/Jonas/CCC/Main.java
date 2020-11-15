@@ -57,6 +57,7 @@ public class Main implements Runnable {
 			
 			DELTA_TIME = (System.nanoTime() - last) * 1.0e-9;
 			
+			candle.update();
 			renderer.render();
 			
 			last = System.nanoTime();
@@ -64,6 +65,6 @@ public class Main implements Runnable {
 	}
 	
 	public static double getDeltaTime() {
-		return DELTA_TIME;
+		return DELTA_TIME * 100;
 	}
 }

@@ -32,15 +32,29 @@ public class Candle {
 				wax[x + y * width].setUDLR(u, d, l, r);
 			}
 		}
+		
+		for (int x = 0; x < width; x++) wax[x].setTemperature(370);
 
 		xOffs = Screen.WIDTH/2-width/2;
 		yOffs = Screen.HEIGHT-height;
 	}
 	
+	public void update() {
+		for (Wax w : wax) {
+			w.update();
+		}
+	}
+	
 	public void render(Bitmap screen) {
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = (int) ((wax[x + y * width].getTemperature() / 370.0) * 0xff0000) + (int) ((1.0 - wax[x + y * width].getTemperature() / 370.0) * 0x0000ff);
+				double temp = wax[x + y * width].getTemperature();
+				temp /= 370.0;
+
+				if (temp > 1) temp = 1;
+				if (temp < 0) temp = 0;
+				
+				screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = ((int) ((temp) * 0xff) << 16) | (int) ((1.0 - temp) * 0xff);
 			}
 		}
 	}
