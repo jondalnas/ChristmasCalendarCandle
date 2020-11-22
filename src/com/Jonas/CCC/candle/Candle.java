@@ -1,9 +1,14 @@
 package com.Jonas.CCC.candle;
 
+import com.Jonas.CCC.Main;
 import com.Jonas.CCC.screen.Bitmap;
 import com.Jonas.CCC.screen.Screen;
 
 public class Candle {
+	public static final double LUMINOSITY = 12.57; //W/m^3
+	
+	private static int LIGHT_X, LIGHT_Y;
+	
 	private Wax[] wax;
 	private int width, height;
 	private int xOffs, yOffs;
@@ -12,6 +17,9 @@ public class Candle {
 		this.width = width;
 		this.height = height;
 		wax = new Wax[width * height];
+
+		LIGHT_X = Screen.WIDTH / 2;
+		LIGHT_Y = Screen.HEIGHT - height - 10;
 
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
@@ -33,7 +41,7 @@ public class Candle {
 			}
 		}
 		
-		for (int x = 0; x < width; x++) wax[x].setTemperature(370);
+		//for (int x = 0; x < width; x++) wax[x].setTemperature(370);
 
 		xOffs = Screen.WIDTH/2-width/2;
 		yOffs = Screen.HEIGHT-height;
@@ -41,6 +49,13 @@ public class Candle {
 	
 	public void update() {
 		for (Wax w : wax) {
+			double xx = w.x + xOffs - LIGHT_X;
+			double yy = w.y + yOffs - LIGHT_Y;
+			
+			//If wax is part of shell, then add energy
+			if (w.isShell()) 
+				w.addEnergy(0.00000001 / (Math.sqrt(xx * xx + yy * yy) * Wax.PIXEL_LENGTH) * Main.getDeltaTime());
+			
 			w.update();
 		}
 	}

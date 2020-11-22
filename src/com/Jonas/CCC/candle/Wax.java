@@ -4,9 +4,17 @@ import com.Jonas.CCC.Main;
 
 public class Wax {
 	public static final double DIFFUSIVITY = 0.15e-6;
-	public static final double PIXEL_LENGTH = 1/600.0;
+	public static final double PIXEL_LENGTH = 1/600.0; //m/px
+	public static final double PIXEL_VOLUME = PIXEL_LENGTH * PIXEL_LENGTH * PIXEL_LENGTH; //m^3/px^3
+	public static final double SPECIFIC_HEAT_CAPACITY = 2.5; //kJ/(kg*K)
+	public static final double MELTING_POINT = 55; //C
+	public static final double LATENT_HEAT = 176; //kJ/kg
+	public static final double ACTUAL_MELTING_POINT = MELTING_POINT + LATENT_HEAT / SPECIFIC_HEAT_CAPACITY; //C
+	public static final double DENSITY = 900; //kg/m^3
+	public static final double PIXEL_MASS = PIXEL_VOLUME * DENSITY; //kg/px^3 / kg
+	public static final double SPECIFIC_HEAT_CAPACITY_MASS = SPECIFIC_HEAT_CAPACITY * PIXEL_MASS; //kJ/K
 	
-	private int x, y;
+	public int x, y;
 	private double temp;
 	private Wax u, d, l, r;
 	
@@ -16,23 +24,35 @@ public class Wax {
 	}
 	
 	public void update() {
-		temp += calculateHeatChange() * Main.getDeltaTime();
+		changeTemperature(calculateHeatChange() * Main.getDeltaTime());
+	}
+	
+	private void changeTemperature(double temperature) { //C
+		temp += temperature;
+	}
+	
+	public void addEnergy(double energy) { //kJ
+		temp += energy / SPECIFIC_HEAT_CAPACITY_MASS;
 	}
 	
 	private double calculateHeatChange() {
 		double lChange = 0;
 		double rChange = 0;
 
-		if (l != null) lChange = (temp - l.getTemperature()) / PIXEL_LENGTH;
-		if (r != null) rChange = (r.getTemperature() - temp) / PIXEL_LENGTH;
+		//dx/dt
+		if (l != null) lChange = (  getTemperature() - l.getTemperature()) / PIXEL_LENGTH;
+		if (r != null) rChange = (r.getTemperature() -   getTemperature()) / PIXEL_LENGTH;
 
 		double uChange = 0;
 		double dChange = 0;
 
-		if (u != null) uChange = (temp - u.getTemperature()) / PIXEL_LENGTH;
-		if (d != null) dChange = (d.getTemperature() - temp) / PIXEL_LENGTH;
-		
-		return DIFFUSIVITY * ((rChange - lChange) + (dChange - uChange));
+		//dy/dt
+		if (u != null) uChange = (  getTemperature() - u.getTemperature()) / PIXEL_LENGTH;
+		if (d != null) dChange = (d.getTemperature() -   getTemperature()) / PIXEL_LENGTH;
+
+		//a*(dx^2/d^2t+dy^2/d^2t+dz^2/d^2t)
+		//x is an estimate of z
+		return DIFFUSIVITY * (2 * (rChange - lChange) + (dChange - uChange));
 	}
 	
 	public void setUDLR(Wax u, Wax d, Wax l, Wax r) {
@@ -48,5 +68,9 @@ public class Wax {
 
 	public void setTemperature(int temperature) {
 		temp = temperature;
+	}
+
+	public boolean isShell() {
+		return l == null || r == null || u == null || d == null;
 	}
 }

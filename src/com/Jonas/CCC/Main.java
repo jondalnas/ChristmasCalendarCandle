@@ -13,6 +13,7 @@ public class Main implements Runnable {
 	private Thread thread;
 	private static int FRAME_CAP = 60;
 	private static double DELTA_TIME;
+	private static double SPEED = 1000;
 	
 	private static Candle candle;
 	
@@ -65,6 +66,6 @@ public class Main implements Runnable {
 	}
 	
 	public static double getDeltaTime() {
-		return DELTA_TIME * 100;
+		return DELTA_TIME * SPEED;
 	}
 }
