@@ -1,6 +1,7 @@
 package com.Jonas.CCC.candle;
 
 import com.Jonas.CCC.Main;
+import com.Jonas.CCC.candle.Wax.State;
 import com.Jonas.CCC.screen.Bitmap;
 import com.Jonas.CCC.screen.Screen;
 
@@ -49,11 +50,13 @@ public class Candle {
 	
 	public void update() {
 		for (Wax w : wax) {
+			if (w.getState() == Wax.State.GAS) continue; 
+			
 			double xx = w.x + xOffs - LIGHT_X;
 			double yy = w.y + yOffs - LIGHT_Y;
 			
 			//If wax is part of shell, then add energy
-			if (w.isShell()) 
+			if (w.isShell() && calculateWaxIntersection(w.x, w.y, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 1) 
 				w.addEnergy(0.00000001 / (Math.sqrt(xx * xx + yy * yy) * Wax.PIXEL_LENGTH) * Main.getDeltaTime());
 			
 			w.update();
@@ -68,9 +71,45 @@ public class Candle {
 
 				if (temp > 1) temp = 1;
 				if (temp < 0) temp = 0;
-				
-				screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = ((int) ((temp) * 0xff) << 16) | (int) ((1.0 - temp) * 0xff);
+
+				//screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = ((int) ((temp) * 0xff) << 16) | (int) ((1.0 - temp) * 0xff);
+				screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = ((((int) ((temp) * 0xff) << 16) | (int) ((1.0 - temp) * 0xff))) | (wax[x + y * width].getState() == State.GAS ? 0x00ff00 : 0);
 			}
 		}
+	}
+	
+	private int calculateWaxIntersection(int sx, int sy, int ex, int ey) {
+		int wax = 0;
+		
+		int deltaX = ex - sx;
+		int deltaY = ey - sy;
+		
+		if (deltaX == 0) {
+			int x = sx;
+			for (int y = sy; (deltaY > 0 && y < ey) || (deltaY < 0 && y > ey); y += deltaY > 0 ? 1 : -1) {
+				if (x < 0 || x >= width || y < 0 || y >= height) break;
+				
+				if (this.wax[x + y * width].getState() != Wax.State.GAS) wax++;
+			}
+			
+			return wax;
+		}
+		
+		double deltaErr = Math.abs((double) deltaY / deltaX);
+		double error = 0;
+		int y = sy;
+		for (int x = sx; (deltaX > 0 && x < ex) || (deltaX < 0 && x > ex); x += deltaX > 0 ? 1 : -1) {
+			if (x < 0 || x >= width || y < 0 || y >= height) break;
+			
+			if (this.wax[x + y * width].getState() != Wax.State.GAS) wax++;
+			
+			error += deltaErr;
+			if (error > 0.5) {
+				y += deltaY < 0 ? -1 : 1;
+				error--;
+			}
+		}
+		
+		return wax;
 	}
 }
