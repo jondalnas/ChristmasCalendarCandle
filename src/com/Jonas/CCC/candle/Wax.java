@@ -1,9 +1,13 @@
 package com.Jonas.CCC.candle;
 
+import java.io.Serializable;
+
 import com.Jonas.CCC.Main;
 import com.Jonas.CCC.screen.Screen;
 
-public class Wax {
+public class Wax implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	public static final double DIFFUSIVITY = 0.15e-6;
 	public static final double PIXEL_LENGTH = 1/(1500.0 / Screen.SCALE); //m/px
 	public static final double PIXEL_VOLUME = PIXEL_LENGTH * PIXEL_LENGTH * PIXEL_LENGTH; //m^3/px^3
@@ -23,7 +27,7 @@ public class Wax {
 	
 	public final int x, y;
 	protected double temp = 27;
-	private Wax u, d, l, r;
+	private transient Wax u, d, l, r;
 	private Candle parent;
 	protected int dir;
 	

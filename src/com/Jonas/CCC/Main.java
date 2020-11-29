@@ -27,7 +27,8 @@ public class Main implements Runnable {
 		JFrame frame = new JFrame("Engine");
 		JPanel panel = new JPanel(new BorderLayout());
 
-		candle = new Candle(CANDLE_WIDTH, CANDLE_HEIGHT);
+		candle = Save.load();
+		if (candle == null) candle = new Candle(CANDLE_WIDTH, CANDLE_HEIGHT);
 		renderer = new Renderer(candle);
 		
 		panel.add(renderer, 0);

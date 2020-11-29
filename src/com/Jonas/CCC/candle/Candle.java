@@ -1,13 +1,18 @@
 package com.Jonas.CCC.candle;
 
+import java.io.Serializable;
+
 import com.Jonas.CCC.Main;
-import com.Jonas.CCC.candle.Wax.State;
+import com.Jonas.CCC.Save;
 import com.Jonas.CCC.screen.Bitmap;
 import com.Jonas.CCC.screen.ImageLoader;
-import com.Jonas.CCC.screen.Renderer;
 import com.Jonas.CCC.screen.Screen;
 
-public class Candle {
+import jdk.nashorn.internal.ir.SetSplitState;
+
+public class Candle implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	public static final double LUMINOSITY = 12.57; //W/m^3
 	public static int PADDING; //px
 	public static int FLAME_DISTANCE_TO_CANDLE = 8; //px
@@ -22,6 +27,9 @@ public class Candle {
 	private int currentFlame;
 	private final double animationSpeed = .1;
 	private double animationTime;
+
+	private final double autosaveTime = 10;
+	private double autosaveTimer;
 	
 	enum flames {
 		flame0, flame1, flame2, flame3;
@@ -47,20 +55,8 @@ public class Candle {
 				wax[x + y * this.width] = new Wax(this, x, y);
 			}
 		}
-
-		for (int y = 0; y < this.height; y++) {
-			for (int x = 0; x < this.width; x++) {
-				Wax u, d, l, r;
-				u = d = l = r = null;
-
-				if (y < this.height - 1) u = wax[x + (y + 1) * this.width];
-				if (y > 0) 				 d = wax[x + (y - 1) * this.width];
-				if (x < this.width - 1)  l = wax[(x + 1) + y * this.width];
-				if (x > 0) 				 r = wax[(x - 1) + y * this.width];
-				
-				wax[x + y * this.width].setUDLR(u, d, l, r);
-			}
-		}
+		
+		setWaxNeighbors();
 		
 		for (int y = 0; y < this.height; y++) {
 			for (int dx = 0; dx < PADDING; dx++) {
@@ -83,10 +79,10 @@ public class Candle {
 			}
 		}
 	}
-	
+
 	public void update() {
 		//if (Renderer.mx >= xOffs && Renderer.mx < width && Renderer.my >= yOffs && Renderer.my < height + yOffs) System.out.println(wax[Renderer.mx - xOffs/* + (Renderer.my - yOffs) * width*/].toString());
-		
+
 		for (Wax w : wax) {
 			if (w.getState() == Wax.State.GAS) continue; 
 			
@@ -107,6 +103,12 @@ public class Candle {
 			animationTime -= animationSpeed;
 			currentFlame++;
 			if (currentFlame >= flames.values().length) currentFlame = 0;
+		}
+		
+		autosaveTimer += Main.getDeltaTime();
+		if (autosaveTimer >= autosaveTime) {
+			autosaveTimer -= autosaveTime;
+			Save.save(this);
 		}
 	}
 	
@@ -197,5 +199,26 @@ public class Candle {
 	
 	public boolean isGas(int x, int y) {
 		return wax[x + y * width].getState() == Wax.State.GAS;
+	}
+	
+	public void load() {
+		setWaxNeighbors();
+		LIGHT_X = Screen.WIDTH / 2;
+	}
+
+	public void setWaxNeighbors() {
+		for (int y = 0; y < this.height; y++) {
+			for (int x = 0; x < this.width; x++) {
+				Wax u, d, l, r;
+				u = d = l = r = null;
+
+				if (y < this.height - 1) u = wax[x + (y + 1) * this.width];
+				if (y > 0) 				 d = wax[x + (y - 1) * this.width];
+				if (x < this.width - 1)  l = wax[(x + 1) + y * this.width];
+				if (x > 0) 				 r = wax[(x - 1) + y * this.width];
+				
+				wax[x + y * this.width].setUDLR(u, d, l, r);
+			}
+		}
 	}
 }
