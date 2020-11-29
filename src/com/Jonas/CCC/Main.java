@@ -11,9 +11,12 @@ import com.Jonas.CCC.screen.Renderer;
 public class Main implements Runnable {
 	private static Renderer renderer;
 	private Thread thread;
-	private static int FRAME_CAP = 60;
+	private static int FRAME_CAP = 600;
 	private static double DELTA_TIME;
-	private static double SPEED = 1000;
+	private static double SPEED = 100;
+
+	public static final int CANDLE_WIDTH = 120, CANDLE_HEIGHT = 320;
+	//public static final int CANDLE_WIDTH = 30, CANDLE_HEIGHT = 80;
 	
 	private static Candle candle;
 	
@@ -24,7 +27,7 @@ public class Main implements Runnable {
 		JFrame frame = new JFrame("Engine");
 		JPanel panel = new JPanel(new BorderLayout());
 
-		candle = new Candle(30, 80);
+		candle = new Candle(CANDLE_WIDTH, CANDLE_HEIGHT);
 		renderer = new Renderer(candle);
 		
 		panel.add(renderer, 0);
@@ -49,10 +52,12 @@ public class Main implements Runnable {
 		while(true) {
 			if ((System.nanoTime() - last) * 1.0e-9 < 1.0 / FRAME_CAP) {
 				long delay = (long) ((1.0 / FRAME_CAP) * 1.0e3 - (System.nanoTime() - last) * 1.0e-6);
-				try {
-					Thread.sleep(delay);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if (delay > 0) {
+					try {
+						Thread.sleep(delay);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			
