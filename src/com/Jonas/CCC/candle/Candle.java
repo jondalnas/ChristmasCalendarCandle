@@ -3,6 +3,7 @@ package com.Jonas.CCC.candle;
 import com.Jonas.CCC.Main;
 import com.Jonas.CCC.candle.Wax.State;
 import com.Jonas.CCC.screen.Bitmap;
+import com.Jonas.CCC.screen.ImageLoader;
 import com.Jonas.CCC.screen.Renderer;
 import com.Jonas.CCC.screen.Screen;
 
@@ -17,6 +18,18 @@ public class Candle {
 	private int candleWidth, candleHeight;
 	private int width, height;
 	private int xOffs, yOffs;
+
+	private int currentFlame;
+	private final double animationSpeed = .1;
+	private double animationTime;
+	
+	enum flames {
+		flame0, flame1, flame2, flame3;
+		Bitmap image;
+		flames() {
+			image = ImageLoader.load("/" + name().substring(0, 1).toUpperCase() + name().substring(1) + ".png");
+		}
+	}
 	
 	public Candle(int width, int height) {
 		PADDING = (Screen.WIDTH - width) / 2;
@@ -62,10 +75,17 @@ public class Candle {
 		yOffs = Screen.HEIGHT-height;
 		
 		wax[LIGHT_X - xOffs].hasLight = true;
+		
+		Bitmap candle = ImageLoader.load("/Candle.png");
+		for (int y = 0; y < candle.height; y++) {
+			for (int x = 0; x < candle.width; x++) {
+				wax[x + PADDING + y * this.width].color = candle.pixels[x + y * candle.width];
+			}
+		}
 	}
 	
 	public void update() {
-		if (Renderer.mx >= xOffs && Renderer.mx < width && Renderer.my >= yOffs && Renderer.my < height + yOffs) System.out.println(wax[Renderer.mx - xOffs/* + (Renderer.my - yOffs) * width*/].toString());
+		//if (Renderer.mx >= xOffs && Renderer.mx < width && Renderer.my >= yOffs && Renderer.my < height + yOffs) System.out.println(wax[Renderer.mx - xOffs/* + (Renderer.my - yOffs) * width*/].toString());
 		
 		for (Wax w : wax) {
 			if (w.getState() == Wax.State.GAS) continue; 
@@ -80,6 +100,13 @@ public class Candle {
 			w.update();
 			
 			if (w.hasLight) LIGHT_Y = w.y + yOffs - FLAME_DISTANCE_TO_CANDLE;
+		}
+		
+		animationTime += Main.getDeltaTime();
+		if (animationTime >= animationSpeed) {
+			animationTime -= animationSpeed;
+			currentFlame++;
+			if (currentFlame >= flames.values().length) currentFlame = 0;
 		}
 	}
 	
@@ -124,11 +151,13 @@ public class Candle {
 				if (temp < 0) temp = 0;
 
 				//screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = ((int) ((temp) * 0xff) << 16) | (int) ((1.0 - temp) * 0xff);
-				if (wax[x + y * width].getState() != Wax.State.GAS) screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = ((int) (temp * 0xff) << 16) | (int) ((1.0 - temp) * 0xff);
+				//if (wax[x + y * width].getState() != Wax.State.GAS) screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = ((int) (temp * 0xff) << 16) | (int) ((1.0 - temp) * 0xff);
+				if (wax[x + y * width].getState() != Wax.State.GAS) screen.pixels[(x + xOffs) + (y + yOffs) * Screen.WIDTH] = wax[x + y * width].color;
 			}
 		}
 		
-		screen.pixels[LIGHT_X + LIGHT_Y * width] = 0xff0000;
+		//screen.pixels[LIGHT_X + LIGHT_Y * width] = 0xff0000;
+		screen.draw(flames.values()[currentFlame].image, LIGHT_X-flames.flame0.image.width/2, LIGHT_Y+FLAME_DISTANCE_TO_CANDLE-flames.flame0.image.height);
 	}
 	
 	private int calculateWaxIntersection(int sx, int sy, int ex, int ey) {

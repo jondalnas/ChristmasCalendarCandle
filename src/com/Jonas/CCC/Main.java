@@ -11,9 +11,9 @@ import com.Jonas.CCC.screen.Renderer;
 public class Main implements Runnable {
 	private static Renderer renderer;
 	private Thread thread;
-	private static int FRAME_CAP = 600;
+	private static int FRAME_CAP = 60;
 	private static double DELTA_TIME;
-	private static double SPEED = 100;
+	private static double SPEED = 1;
 
 	public static final int CANDLE_WIDTH = 120, CANDLE_HEIGHT = 320;
 	//public static final int CANDLE_WIDTH = 30, CANDLE_HEIGHT = 80;

@@ -31,6 +31,8 @@ public class Wax {
 	
 	public boolean hasLight;
 	
+	public int color = 0xffffff;
+	
 	protected double time;
 	
 	public Wax(Candle candle, int x, int y) {

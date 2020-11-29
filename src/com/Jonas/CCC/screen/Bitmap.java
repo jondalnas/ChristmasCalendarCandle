@@ -31,7 +31,7 @@ public class Bitmap {
 				if (xx < 0 || xx >= width) continue;
 				
 				int col = bitmap.pixels[x + y * bitmap.width];
-				if (col == 0xff00ff) continue;
+				if (col == 0) continue;
 				
 				pixels[xx + yy * width] = col;
 			}
