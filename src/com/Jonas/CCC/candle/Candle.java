@@ -90,7 +90,10 @@ public class Candle implements Serializable {
 			double yy = w.y + yOffs - LIGHT_Y;
 			
 			//If wax is part of shell, then add energy
-			if (w.isShell() && calculateWaxIntersection(w.x, w.y-1, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 0) 
+			if (w.isShell() && ((calculateWaxIntersection(w.x, w.y-1, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 0) ||
+								(calculateWaxIntersection(w.x, w.y+1, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 0) ||
+								(calculateWaxIntersection(w.x-1, w.y, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 0) ||
+								(calculateWaxIntersection(w.x+1, w.y, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 0))) 
 				w.addEnergy(0.00000000025 / ((xx * xx + yy * yy) * Wax.PIXEL_LENGTH * Wax.PIXEL_LENGTH) * Main.getDeltaTime());
 			
 			w.update();
@@ -198,6 +201,9 @@ public class Candle implements Serializable {
 	}
 	
 	public boolean isGas(int x, int y) {
+		if (x < 0 || y < 0 || x >= width) return true;
+		if (y >= height) return false; //Table
+		
 		return wax[x + y * width].getState() == Wax.State.GAS;
 	}
 	

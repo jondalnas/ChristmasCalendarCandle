@@ -155,6 +155,7 @@ public class Wax implements Serializable {
 		dir = wax.dir;
 		time = wax.time;
 		state = wax.state;
+		color = wax.color;
 	}
 	
 	public void remove() {
@@ -162,6 +163,7 @@ public class Wax implements Serializable {
 		dir = 0;
 		time = 0;
 		state = State.GAS;
+		color = 0;
 	}
 	
 	public String toString() {
