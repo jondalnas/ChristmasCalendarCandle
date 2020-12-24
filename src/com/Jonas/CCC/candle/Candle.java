@@ -94,7 +94,7 @@ public class Candle implements Serializable {
 								(calculateWaxIntersection(w.x, w.y+1, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 0) ||
 								(calculateWaxIntersection(w.x-1, w.y, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 0) ||
 								(calculateWaxIntersection(w.x+1, w.y, LIGHT_X - xOffs, LIGHT_Y - yOffs) == 0))) 
-				w.addEnergy(0.00000000025 / ((xx * xx + yy * yy) * Wax.PIXEL_LENGTH * Wax.PIXEL_LENGTH) * Main.getDeltaTime());
+				w.addEnergy(0.0000000001 / ((xx * xx + yy * yy) * Wax.PIXEL_LENGTH * Wax.PIXEL_LENGTH) * Main.getDeltaTime());
 			
 			w.update();
 			
@@ -174,7 +174,10 @@ public class Candle implements Serializable {
 		if (deltaX == 0) {
 			int x = sx;
 			for (int y = sy; (deltaY > 0 && y < ey) || (deltaY < 0 && y > ey); y += deltaY > 0 ? 1 : -1) {
-				if (x < 0 || x >= width || y < 0 || y >= height) break;
+				if (x < 0 || x >= width || y < 0 || y >= height) {
+					wax++;
+					continue;
+				}
 				
 				if (this.wax[x + y * width].getState() != Wax.State.GAS) wax++;
 			}
@@ -186,7 +189,10 @@ public class Candle implements Serializable {
 		double error = 0;
 		int y = sy;
 		for (int x = sx; (deltaX > 0 && x < ex) || (deltaX < 0 && x > ex); x += deltaX > 0 ? 1 : -1) {
-			if (x < 0 || x >= width || y < 0 || y >= height) break;
+			if (x < 0 || x >= width || y < 0 || y >= height) {
+				wax++;
+				continue;
+			}
 			
 			if (this.wax[x + y * width].getState() != Wax.State.GAS) wax++;
 			
@@ -210,6 +216,11 @@ public class Candle implements Serializable {
 	public void load() {
 		setWaxNeighbors();
 		LIGHT_X = Screen.WIDTH / 2;
+		/*for (int x = 0; x < candleWidth; x++) {
+			for (int y = 0; y < 4; y++) {
+				wax[x+Screen.WIDTH/2-candleWidth/2+(height-y-1)*width].setColor(0xffffff);
+			}
+		}*/
 	}
 
 	public void setWaxNeighbors() {

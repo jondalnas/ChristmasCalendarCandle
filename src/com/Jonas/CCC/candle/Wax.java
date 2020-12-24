@@ -172,4 +172,9 @@ public class Wax implements Serializable {
 																					+ ", ue=" + (u == null || u.state == State.GAS)
 																					+ ", de=" + (d == null || d.state == State.GAS);
 	}
+
+	public void setColor(int col) {
+		color = col;
+		state = State.SOLID;
+	}
 }
